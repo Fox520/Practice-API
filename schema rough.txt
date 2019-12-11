@@ -1,0 +1,73 @@
+- Product
+	product_id
+	seller_id
+	media_id
+	feedback_id
+	previous_price
+
+- Product Information
+	product_info_id
+	product_id
+	name
+	product_summary
+	description_details
+	category
+	quantity
+	color
+	price
+	in_stock
+	free_shipping
+	new_or_used
+	date_added
+
+
+- Feedback
+	feedback_id
+	rating
+	review
+	date_posted
+
+- Buyer
+	buyer_id
+
+- Seller
+	seller_id
+	display_name
+
+- Cart
+	cart_id
+	product_id
+	quantity
+
+Order_Detail (junction table)
+	order_id
+	buyer_id
+	quantity
+	price
+	tax
+	discount_amount
+	charge_per_item
+	total
+
+- Media
+	media_id
+	link
+
+- Orders
+	order_id
+	product_id
+	date
+	shipping_address
+
+- Customer Questions and Answers
+	qna_id
+	product_id
+	question
+	answer
+	date_posted
+
+Coupons
+	coupon_id
+	product_id
+	coupon_code
+	percent_reduction
