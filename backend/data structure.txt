@@ -1,0 +1,49 @@
+updating json fields:
+    https://www.freecodecamp.org/news/how-to-update-objects-inside-jsonb-arrays-with-postgresql-5c4e03be256a/
+Media:
+    info: {
+        links: ["http://example.com", "https://google.com"]
+    }
+
+Seller:
+    seller_id <- serial PK,
+    org_id <- integer FK NULLABLE
+    email <- varchar(255) -> unique,
+    password_hash <- varchar(512)
+    info: {
+        display_name: "Jaden Smith",
+        identification_number: "9999999999"
+    }
+    
+
+Feedback:
+    feedback_id <- serial PK,
+    rating <- smallint 1-5,
+    review <- text NULLABLE,
+    date_posted date NULLABLE
+
+PRODUCT_FEEDBACK_JUNCTION_TABLE:
+    product_id integer
+    feedback_id integer
+
+Product:
+    product_id serial PK,
+    seller_id integer FK,
+    media_id integer FK
+
+Buyer:
+    buyer_id varchar(1024) PK
+    info: { NULLABLE
+
+    }
+
+Product Information:
+    product_info_id <- serial PK
+    product_id <- integer FK
+    info: {
+        dimensions: "50x50",
+        free_shipping: true,
+        ...
+    }
+
+check schema.sql for the rest
