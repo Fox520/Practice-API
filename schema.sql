@@ -63,10 +63,12 @@ create table if not exists product_information (
 );
 
 create table if not exists cart (
-	cart_id serial primary key,
+	cart_id serial,
 	product_id integer not null references product(product_id) on delete cascade on update cascade,
+	buyer_id varchar(1024) not null references buyer(buyer_id) on delete cascade on update cascade,
 	quantity smallint not null,
-	check (quantity > 0)
+	check (quantity > 0),
+	CONSTRAINT cart_buyer_pkey PRIMARY KEY (cart_id, buyer_id)
 );
 
 create table if not exists orders (

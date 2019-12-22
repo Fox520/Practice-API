@@ -200,6 +200,38 @@ class DB_API(object):
         except psycopg2.Error as e:
             return (False, e.pgerror)
 
+    def add_to_cart(self, buyer_id: str, product_id: str, quantity: int) -> (bool, str, int or str):
+        if buyer_id in [None, ""]: return (False, "Buyer id cannot be empty.")
+        if product_id in [None, ""]: return (False, "Product id cannot be empty.")
+        if quantity < 1: return (False, "Quantity too low")
+        # if not get_quantity(product_id) >= quantity: <- prevent buying more than available
+        try:
+            self.cur.execute("INSERT INTO cart(product_id, buyer_id, quantity) VALUES (%s,%s,%s) RETURNING cart_buyer_pkey", (product_id, buyer_id, quantity))
+            cart_buyer_id = self.cur.fetchone()[0]
+            self.con.commit()
+            return (True, "product placed in cart", cart_buyer_id)
+        except psycopg2.Error as e:
+            return (False, e.pgerror, e.pgcode)
+    
+    def remove_product_from_cart(self, buyer_id, product_id) -> (bool, str):
+        if buyer_id in [None, ""]: return (False, "buyer_id cannot be empty.")
+        if product_id in [None, ""]: return (False, "product_id cannot be empty.")
+        try:
+            self.cur.execute("DELETE FROM cart WHERE buyer_id=%s AND product_id=%s", (buyer_id, product_id))
+            self.con.commit()
+            return (True, "Item removed from cart")
+        except psycopg2.Error as e:
+            return (False, e.pgcode)
+    
+    def destroy_cart(self, buyer_id):
+        if buyer_id in [None, ""]: return (False, "id cannot be empty.")
+        try:
+            self.cur.execute("DELETE FROM cart WHERE buyer_id=%s", (buyer_id,))
+            self.con.commit()
+            return (True, "cart destroyed")
+        except psycopg2.Error as e:
+            return (False, e.pgerror, e.pgcode)
+
     def get_products_with_affiliations_available(self):
         self.cur.execute("select * from product_information where affiliations_allowed=%s", (True,))
         rows = self.cur.fetchall()
