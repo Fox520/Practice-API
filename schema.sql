@@ -6,7 +6,7 @@ create table if not exists MEDIA(
 
 create table if not exists organisation(
 	org_id serial primary key,
-	organisation_name varchar(150) not null	
+	organisation_name varchar(150) not null unique	
 );
 
 create table if not exists seller(
@@ -28,7 +28,7 @@ create table if not exists FEEDBACK(
 create table if not exists product(
 	product_id serial primary key,
 	seller_id integer not null references seller(seller_id) on delete cascade on update cascade,
-	media_id integer not null references media(media_id) on delete cascade on update cascade
+	media_id integer references media(media_id) on delete cascade on update cascade
 );
 
 create table if not exists PRODUCT_FEEDBACK_JUNCTION_TABLE(
@@ -44,7 +44,7 @@ create table if not exists BUYER(
 
 create table if not exists product_information(
 	product_info_id serial primary key,
-	product_id integer not null references product(product_id) on delete cascade on update cascade,
+	product_id integer not null unique references product(product_id) on delete cascade on update cascade,
 	info json
 );
 

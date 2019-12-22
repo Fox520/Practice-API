@@ -12,6 +12,7 @@ Seller:
     password_hash <- varchar(512)
     info: {
         display_name: "Jaden Smith",
+        identification_type: "passport"
         identification_number: "9999999999"
     }
     

@@ -1,30 +1,33 @@
 import json
-import psycopg2
+from db_api import DB_API
 
-# connect to the db
-con = psycopg2.connect(
-    host = "localhost",
-    database = "dreamer",
-    user = "dreamer",
-    password = "asdf"
-)
+db = DB_API("localhost", "dreamer", "dreamer", "asdf")
 
-v = {"verge": ["🐻", "car"]}
+# print(db.add_media(["http://link1.com", "http://link2.com/hello.png"]))
 
-# cursor
-cur = con.cursor()
-cur.execute("INSERT INTO media(info) VALUES (%s)", (json.dumps(v),))
-# execute query
-# cur.execute("insert into media (info) values (%s)", json.dumps(v, ensure_ascii=False))
-con.commit()
-cur.execute("select * from media")
-rows = cur.fetchall()
 
-for r in rows:
-    print(r[0], r[1])
+# retrieve links for a product
+# result = db.get_product_media(12)
+# print(result)
 
-# close cursor
-cur.close()
+# add organisation
+# res = db.add_organisation("choppies")
+# print(res)
 
-# close the connection
-con.close()
+# retrieve all organisations
+# res = db.get_all_organisations()
+# print(res)
+# add seller
+res = db.add_seller("me@mail.com", "hassssh", "Johnny", "12345", "personal id")
+print(res)
+
+# res = db.add_feedback(0, 3, "akshd")
+# print(res)
+
+# res = db.add_product(4,{"dimensions": "80x30"},1)
+# print(res)
+
+# res = db.get_product_information(8)
+# print(res)
+
+db.close()
