@@ -116,7 +116,8 @@ class DB_API(object):
             result.append(r)
         return result
     
-    def get_all_products_from_seller(self, seller_id):
+    # not tested
+    def get_all_products_from_seller(self, seller_id: int):
         try:
             self.cur.execute("""
             SELECT
@@ -167,6 +168,37 @@ class DB_API(object):
             return (True, "success", affiliation_code)
         except psycopg2.Error as e:
             return (False, e.pgerror, e.pgcode)
+
+    def add_coupon(self, product_id: int, coupon_code: str, percent_reduction: float) -> (bool, str, int or str):
+        if coupon_code in [None, ""]: return (False, "Coupon code cannot empty.")
+        if percent_reduction > 1 or percent_reduction < 0.01: return (False, "Invalid percentage")
+        try:
+            self.cur.execute("INSERT INTO coupon(product_id, coupon_code, percent_reduction) VALUES (%s,%s,%s) RETURNING coupon_id", (product_id, coupon_code, percent_reduction))
+            coupon_id = self.cur.fetchone()[0]
+            self.con.commit()
+            return (True, "success", coupon_id)
+        except psycopg2.Error as e:
+            return (False, e.pgerror, e.pgcode)
+    
+    def add_question(self, product_id: int, question: str, answer: str, date_posted:str = datetime.today().strftime("%Y-%m-%d")):
+        if question in [None, ""]: return (False, "Question cannot be empty.")
+        if date_posted in [None, ""]: return (False, "Date code cannot be empty.")
+        try:
+            self.cur.execute("INSERT INTO CustomerQuestionsAndAnswers(product_id, question, date_posted) VALUES (%s,%s,%s) RETURNING qna_id", (product_id, question, date_posted))
+            qna_id = self.cur.fetchone()[0]
+            self.con.commit()
+            return (True, "question successfully posted", qna_id)
+        except psycopg2.Error as e:
+            return (False, e.pgerror, e.pgcode)
+    
+    def set_answer_to_question(self, qna_id: int, answer: str) -> (bool, str):
+        if answer in [None, ""]: return (False, "Answer cannot be empty.")
+        try:
+            self.cur.execute("UPDATE CustomerQuestionsAndAnswers SET answer = %s WHERE qna_id=%s", (answer, qna_id))
+            self.con.commit()
+            return (True, "question successfully posted")
+        except psycopg2.Error as e:
+            return (False, e.pgerror)
 
     def get_products_with_affiliations_available(self):
         self.cur.execute("select * from product_information where affiliations_allowed=%s", (True,))
