@@ -27,9 +27,9 @@ class DB_API(object):
     
     # TODO: fix logic
     def get_product_media(self, product_id:int) -> [str]:
-        # self.cur.execute("select media_id from product where product_id=%s", (product_id,))
-        # mid = self.cur.fetchone()
-        self.cur.execute("select info from media where media_id=%s", (product_id,)) # =mid
+        self.cur.execute("select media_id from product where product_id=%s", (product_id,))
+        mid = self.cur.fetchone()
+        self.cur.execute("select info from media where media_id=%s", (mid,))
         # [({'links': ['link1', 'link2']},)]
         rows = self.cur.fetchall()[0][0]
         # {'links': ['link1', 'link2']} <- dict

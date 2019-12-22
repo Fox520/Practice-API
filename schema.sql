@@ -25,10 +25,23 @@ create table if not exists FEEDBACK(
 	check (rating > 0 and rating < 6)
 );
 
+create table if not exists affiliation (
+	affiliation_id serial primary key,
+	email varchar(255) not null unique,
+	password_hash varchar(512) not null
+);
+
 create table if not exists product(
 	product_id serial primary key,
 	seller_id integer not null references seller(seller_id) on delete cascade on update cascade,
 	media_id integer references media(media_id) on delete cascade on update cascade
+);
+
+create table if not exists PRODUCT_AFFILIATION_JUNCTION_TABLE(
+	product_id integer not null references product(product_id) on delete cascade on update cascade,
+	affiliation_id integer not null references affiliation(affiliation_id) on delete cascade on update cascade,
+	affiliation_code varchar(30) not null,
+	CONSTRAINT product_affiliation_pkey PRIMARY KEY (product_id, affiliation_id)
 );
 
 create table if not exists PRODUCT_FEEDBACK_JUNCTION_TABLE(
@@ -48,23 +61,25 @@ create table if not exists product_information(
 	info json
 );
 
-create table if not exists cart(
+create table if not exists cart (
 	cart_id serial primary key,
 	product_id integer not null references product(product_id) on delete cascade on update cascade,
 	quantity smallint not null,
 	check (quantity > 0)
 );
 
-create table if not exists orders(
+create table if not exists orders (
 	order_id serial primary key,
 	product_id integer not null references product(product_id) on delete cascade on update cascade,
 	order_date date default current_date,
-	shipping_address varchar(500)
+	affiliation_id varchar(30),
+	shipping_address json
 );
 
 create table if not exists order_detail(
 	order_id integer not null references orders(order_id) on delete cascade on update cascade,
 	buyer_id varchar(1024) not null references buyer(buyer_id) on delete cascade on update cascade,
+	affiliation_id
 	info json,
 	CONSTRAINT order_buyer_pkey PRIMARY KEY (order_id, buyer_id)
 );
@@ -72,8 +87,8 @@ create table if not exists order_detail(
 create table if not exists CustomerQuestionsAndAnswers(
 	qna_id serial primary key,
 	product_id integer not null references product(product_id) on delete cascade on update cascade,
-	question varchar(250) not null,
-	answer varchar(550),
+	question text not null,
+	answer text,
 	date_posted date default current_date
 );
 

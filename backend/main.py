@@ -1,3 +1,5 @@
+#TODO: - use mobile phone to create account
+#       - referral link AAA000
 import json
 from db_api import DB_API
 
