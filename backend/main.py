@@ -4,7 +4,7 @@ from db_api import DB_API
 from db_api import generate_code
 
 db = DB_API("localhost", "dreamer", "dreamer", "asdf")
-print(db.login_seller("s@a.com", "hasshh"))
+print(db.login_seller("me@mail.com", "hassssh"))
 # retrieve links for a product
 # result = db.get_product_media(12)
 # print(result)
@@ -21,7 +21,6 @@ print(db.login_seller("s@a.com", "hasshh"))
 # # print(res)
 # # add seller
 # print(db.add_seller("me@mail.com", "hassssh", "Johnny", "12345", "national_id", is_email=True))
-# print(res)
 
 # res = db.add_feedback(0, 3, "akshd")
 # print(res)
