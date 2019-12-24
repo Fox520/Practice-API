@@ -38,11 +38,12 @@ class DB_API(object):
     
     def add_organisation(self, org_name: str, info: dict) -> (bool, str):
         try:
-            self.cur.execute("INSERT INTO organisation(organisation_name, info) VALUES (%s)", (org_name,json.dumps(info)))
+            self.cur.execute("INSERT INTO organisation(organisation_name, info) VALUES (%s) RETURNING org_id", (org_name,json.dumps(info)))
+            org_id = self.cur.fetchone()[0]
             self.con.commit()
+            return (True, org_id)
         except psycopg2.Error as e:
             return (False, e.pgcode)
-        return (True, "organisation added")
     
     def get_all_organisations(self) -> [(int, str, dict)]:
         self.cur.execute("select * from organisation")
@@ -52,21 +53,23 @@ class DB_API(object):
             result.append(r)
         return result
     
-    def add_seller(self, email_or_phone: str, pwd_hash: str, display_name: str, id_num: str, id_type: str, org_id: int = None, is_email=True) -> (bool, str):
+    def add_seller(self, email_or_phone: str, pwd_hash: str, display_name: str, id_num: str, id_type: str, org_id: int = None, is_email=True) -> (bool, str or int):
         if None or "" in [email_or_phone, pwd_hash, display_name, id_num, id_type]:
-            return (False, "fill in required fields")
+            return (False, "Fill in required fields")
         if is_email and not validate_email(email_or_phone): return False, "invalid email provided"
         try:
             info = json.dumps({"display_name":display_name, "identification_number": id_num, "identification_type": id_type})
-            self.cur.execute("INSERT INTO seller(org_id, email_or_phone, password_hash, info) VALUES (%s,%s,%s,%s)", (org_id, email_or_phone,pwd_hash,info))
+            self.cur.execute("INSERT INTO seller(org_id, email_or_phone, password_hash, info) VALUES (%s,%s,%s,%s) RETURNING seller_id", (org_id, email_or_phone,pwd_hash,info))
+            seller_id = self.cur.fetchone()[0]
             self.con.commit()
+            return (True, seller_id)
         except psycopg2.Error as e:
-            return (False, e.pgcode)
+            return (None, e.pgcode)
         return (True, "seller added")
     
     def login_seller(self, email_or_phone, pwd_hash) -> (int, int or None, str, str, dict) or None or (bool, str, str):
         try:
-            self.cur.execute("select seller_id, org_id, email_or_phone, password_hash, info from seller where email_or_phone=%s and password_hash=%s", (email_or_phone, pwd_hash))
+            self.cur.execute("select seller_id, org_id, email_or_phone, info from seller where email_or_phone=%s and password_hash=%s", (email_or_phone, pwd_hash))
             result = self.cur.fetchone()
             return result
         except psycopg2.Error as e:

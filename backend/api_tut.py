@@ -14,7 +14,7 @@ auth = HTTPBasicAuth()
 
 @auth.get_password
 def get_password(username):
-    if username == 'miguel':
+    if username == 'username':
         return 'python'
     return None
 
