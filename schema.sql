@@ -52,6 +52,7 @@ create table if not exists PRODUCT_FEEDBACK_JUNCTION_TABLE (
 
 create table if not exists BUYER (
 	buyer_id VARCHAR(1024) primary key,
+	email VARCHAR(50),
 	info json
 );
 
