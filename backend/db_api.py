@@ -64,7 +64,7 @@ class DB_API(object):
             return (False, e.pgcode)
         return (True, "seller added")
     
-    def login_seller(self, email_or_phone, pwd_hash) -> (int, int, str, str, dict) or None or (bool, str, str):
+    def login_seller(self, email_or_phone, pwd_hash) -> (int, int or None, str, str, dict) or None or (bool, str, str):
         try:
             self.cur.execute("select seller_id, org_id, email_or_phone, password_hash, info from seller where email_or_phone=%s and password_hash=%s", (email_or_phone, pwd_hash))
             result = self.cur.fetchone()
@@ -133,7 +133,7 @@ class DB_API(object):
         return result
     
     # not tested
-    def get_all_products_from_seller(self, seller_id: int):
+    def get_all_products_from_seller(self, seller_id: int) -> (bool, [(int,dict,bool,dict)]):
         try:
             self.cur.execute("""
             SELECT
@@ -339,11 +339,11 @@ class DB_API(object):
         except psycopg2.Error:
             return -1
     
-    def add_buyer(self, buyer_id: str, info: dict) -> (bool, str):
+    def add_buyer(self, buyer_id: str, info: dict, email: str=None) -> (bool, str):
         if None or "" in [buyer_id]:
             return (False, "No buyer id entered")
         try:
-            self.cur.execute("INSERT INTO buyer(buyer_id, info) VALUES (%s,%s) RETURNING buyer_id", (buyer_id, json.dumps(info)))
+            self.cur.execute("INSERT INTO buyer(buyer_id, email, info) VALUES (%s,%s,%s) RETURNING buyer_id", (buyer_id, email, json.dumps(info)))
             buyer_id = self.cur.fetchone()[0]
             self.con.commit()
             return (True, buyer_id)
