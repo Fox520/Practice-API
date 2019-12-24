@@ -18,38 +18,37 @@ class DB_API(object):
                 )
         self.cur = self.con.cursor()
     
-    def add_media(self, links:[str]) -> (bool, str):
-        for u in links:
-            if not validate_url(u): return (False, str(u)+" not a valid url")
-        l = {"links": links}
-        self.cur.execute("INSERT INTO media(info) VALUES (%s)", (json.dumps(l),))
-        self.con.commit()
-        return (True, "success added media")
+    def add_media(self, product_id: int, links:[str]) -> (bool, str):
+        try:
+            for u in links:
+                if not validate_url(u): return (False, str(u)+" not a valid url")
+            l = {"links": links}
+            self.cur.execute("INSERT INTO media(int, info) VALUES (%s,%s)", (product_id, json.dumps(l)))
+            self.con.commit()
+            return (True, "success added media")
+        except psycopg2.Error as e:
+            return (False, e.pgerror, e.pgcode)
     
-    # TODO: fix logic
     def get_product_media(self, product_id:int) -> [str]:
-        self.cur.execute("select media_id from product where product_id=%s", (product_id,))
-        mid = self.cur.fetchone()[0]
-        self.cur.execute("select info from media where media_id=%s", (mid,))
+        self.cur.execute("select info from media where product_id=%s", (product_id,))
         # [({'links': ['link1', 'link2']},)]
         rows = self.cur.fetchall()[0][0]
         # {'links': ['link1', 'link2']} <- dict
         return rows["links"]
     
-    def add_organisation(self, org_name: str) -> (bool, str):
+    def add_organisation(self, org_name: str, info: dict) -> (bool, str):
         try:
-            self.cur.execute("INSERT INTO organisation(organisation_name) VALUES (%s)", (org_name,))
+            self.cur.execute("INSERT INTO organisation(organisation_name, info) VALUES (%s)", (org_name,json.dumps(info)))
             self.con.commit()
         except psycopg2.Error as e:
             return (False, e.pgcode)
         return (True, "organisation added")
     
-    def get_all_organisations(self) -> [(int, str)]:
+    def get_all_organisations(self) -> [(int, str, dict)]:
         self.cur.execute("select * from organisation")
         rows = self.cur.fetchall()
         result = []
         for r in rows:
-            # r -> (org_id, organisation_name)
             result.append(r)
         return result
     
@@ -64,6 +63,23 @@ class DB_API(object):
         except psycopg2.Error as e:
             return (False, e.pgcode)
         return (True, "seller added")
+    
+    def login_seller(self, email_or_phone, pwd_hash) -> (int, int, str, str, dict) or None or (bool, str, str):
+        try:
+            self.cur.execute("select seller_id, org_id, email_or_phone, password_hash, info from seller where email_or_phone=%s and password_hash=%s", (email_or_phone, pwd_hash))
+            result = self.cur.fetchone()
+            return result
+        except psycopg2.Error as e:
+            return (False, e.pgerror, e.pgcode)
+    
+    def does_seller_exist(self, seller_id: int) -> bool:
+        try:
+            self.cur.execute("select exists(select seller_id from seller where seller_id=%s)", (seller_id,))
+            result = self.cur.fetchone()[0]
+            return result
+        except psycopg2.Error as e:
+            print(e.pgerror, e.pgcode)
+            return False
     
     def add_feedback(self, product_id: int, rating: int, review: str) -> (bool, str):
         if None or "" in [product_id, rating]: return (False, "Enter valid values")

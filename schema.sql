@@ -1,6 +1,7 @@
 create table if not exists organisation (
 	org_id serial primary key,
-	organisation_name varchar(150) not null unique	
+	organisation_name varchar(150) not null unique,
+	info json
 );
 
 create table if not exists seller (
@@ -27,8 +28,7 @@ create table if not exists affiliator (
 
 create table if not exists product (
 	product_id serial primary key,
-	seller_id integer not null references seller(seller_id) on delete cascade on update cascade,
-	media_id integer references media(media_id) on delete cascade on update cascade
+	seller_id integer not null references seller(seller_id) on delete cascade on update cascade
 );
 
 create table if not exists MEDIA (

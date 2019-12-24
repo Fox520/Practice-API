@@ -4,7 +4,7 @@ from db_api import DB_API
 from db_api import generate_code
 
 db = DB_API("localhost", "dreamer", "dreamer", "asdf")
-
+print(db.login_seller("s@a.com", "hasshh"))
 # retrieve links for a product
 # result = db.get_product_media(12)
 # print(result)
@@ -35,7 +35,7 @@ db = DB_API("localhost", "dreamer", "dreamer", "asdf")
 # res = db.get_product_information(8)
 # print(res)
 
-print(db.add_affiliator("2648123456", "serccure"))
+# print(db.add_affiliator("2648123456", "serccure"))
 
 # print(db.get_category_listing())
 # print(db.get_all_products_from_category("clothing"))
@@ -51,6 +51,6 @@ print(db.add_affiliator("2648123456", "serccure"))
 # print(db.add_order(product_id=8, shipping_address={"address 1": "driveway"},
 #         buyer_id="abcd", info={"free_shipping":True}, affiliation_code="EVD539"))
 
-print(db.get_number_of_affiliation_orders(1, "EVD539"))
+# print(db.get_number_of_affiliation_orders(1, "EVD539"))
 
 db.close()
